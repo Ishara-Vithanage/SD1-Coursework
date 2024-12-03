@@ -43,7 +43,16 @@ def validate_continue_input():
             break           
         elif user_cont == "Y" or user_cont == "y":
             return True
-                
+        else:
+            while True:
+                user_cont = input("Please enter “Y” or “N” > ")
+                if user_cont == "N" or user_cont == "n":
+                    print("End of run ")
+                    break           
+                elif user_cont == "Y" or user_cont == "y":
+                    return True
+                else:
+                    continue
                 
 # Task B: Processed Outcomes
 def process_csv_data(file_path):
@@ -67,11 +76,12 @@ def process_csv_data(file_path):
         traffic_data_list.append(0)
         
     bikes_count = 0
+    scooter_count = 0
     current_hour = 0
     vehicles_ph = 0
     max_vehicles_ph = 0
     max_vehicles_frm_hour = 0
-    current_hour_for_rain = 100
+    current_hour_for_rain = 0
     
     for row in data_rows:
         traffic_data_list[0] += 1 
@@ -98,11 +108,14 @@ def process_csv_data(file_path):
         traffic_data_list[7] = round(bikes_count / 24)
         
         # High speed vehicles
-        if columns[7] > columns[6]:
+        if int(columns[7]) > int(columns[6]):
             traffic_data_list[8] += 1
-            
+        
+        # Vehicles from Elm Avenue/Rabbit Road    
         if columns[0] == 'Elm Avenue/Rabbit Road':
             traffic_data_list[9] += 1
+            
+        # Vehicles from Hanley Highway/Westway
         if columns[0] == 'Hanley Highway/Westway':
             traffic_data_list[10] += 1
                 
@@ -116,6 +129,11 @@ def process_csv_data(file_path):
             vehicles_ph = 1 # Starting count the vehicles from next hour
         elif hour == current_hour and columns[0] == 'Hanley Highway/Westway':
             vehicles_ph += 1
+            
+        # Scooter percentage
+        if columns[8] == "Scooter":
+            scooter_count += 1
+        traffic_data_list[11] = int((scooter_count/traffic_data_list[0]) * 100)
             
         # Assign hourly data to relevent traffic_data_list value    
         traffic_data_list[12] = max_vehicles_ph
@@ -141,10 +159,10 @@ def display_outcomes(outcomes):
     print(f"The total number of Vehicles through both junctions not turning left or right is {outcomes[5]}")
     print(f"The percentage of total vehicles recorded that are trucks for this date is {outcomes[6]}")
     print(f"The average number of Bikes per hour for this date is {outcomes[7]} \n")
-    print(f"The total number of Vehicles recorded as over the speed limit for this date is {outcomes[8]}")
+    print(f"The total number of vehicles recorded as over the speed limit for this date is {outcomes[8]}")
     print(f"The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is {outcomes[9]}")
-    print(f"The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes[10]} \n")
-    # One missing
+    print(f"The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes[10]}")
+    print(f"{outcomes[11]}% of vehicles recorded through Elm Avenue/Rabbit Road are scooters. \n")
     print(f"The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes[12]}")
     print(f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes[13] - 1}:00 - {outcomes[13]}:00")
     print(f"The number of hours of rain for this date is {outcomes[14]}")
@@ -154,8 +172,9 @@ def save_results_to_file(outcomes, file_name="results.txt"):
     """
     Saves the processed outcomes to a text file and appends if the program loops.
     """
-    pass  # File writing logic goes here
-
+    file = open("results.txt", "a")
+    for rows in outcomes:
+        file.writelines(rows)
 
 # Call validate_date_input function to get user inputs and validate them.
 while True:
@@ -186,6 +205,9 @@ while True:
 
     # Call display_outcomes function to display the outputs.
     display_outcomes(traffic_data)
+    
+    # Save results to a txt file
+    save_results_to_file(traffic_data)
 
     # Ask for another input to continue or exit
     validate_continue_input()
