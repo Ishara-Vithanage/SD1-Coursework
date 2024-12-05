@@ -40,7 +40,7 @@ def validate_continue_input():
     elif user_cont == "Y" or user_cont == "y":
         return True
     else:
-        while True:
+        while True: # If user enter something else, below section prompts
             user_cont = input("Please enter “Y” or “N” > ")
             if user_cont == "N" or user_cont == "n":
                 print("End of run ")
@@ -60,18 +60,18 @@ def process_csv_data(file_path):
     - Two-wheeled vehicles, and other requested metrics
     """
     try:
-        print("*"*10)
-        print(f"data file selected is {file_path}") # Display the traffic file of relevant date
-        print("*"*10)
+        traffic_data_list = []
         
+        for i in range(0, 16): # Insert 15, 0 values to the list (for increment purposes)
+            traffic_data_list.append(0)
+    
+        traffic_data_list[0] = file_path
+   
         file = open(file_path, "r")
         rows = file.readlines()
         data_rows = rows[1:]
         
-        traffic_data_list = []
-        for i in range(0, 15):
-            traffic_data_list.append(0)
-            
+        # below variables store essential data required for the incrementation
         bikes_count = 0
         scooter_count = 0
         current_hour = 0
@@ -80,41 +80,42 @@ def process_csv_data(file_path):
         max_vehicles_frm_hour = 0
         current_hour_for_rain = 0
         
+        # Get data from csv file and assign into the traffic_data_list
         for row in data_rows:
-            traffic_data_list[0] += 1 
+            traffic_data_list[1] += 1 
             columns = row.strip().split(',')
             
             if columns[8] == 'Truck': 
-                traffic_data_list[1] += 1
-            if columns[9] == 'True':
                 traffic_data_list[2] += 1
-            if columns[8] == 'Bicycle' or columns[8] == 'Motorcycle' or columns[8] == 'Scooter':
+            if columns[9] == 'True':
                 traffic_data_list[3] += 1
-            if columns[8] == 'Buss' and columns[0] == 'Elm Avenue/Rabbit Road' and columns[4] == "N":
+            if columns[8] == 'Bicycle' or columns[8] == 'Motorcycle' or columns[8] == 'Scooter':
                 traffic_data_list[4] += 1
-            if columns[3] == columns[4]:
+            if columns[8] == 'Buss' and columns[0] == 'Elm Avenue/Rabbit Road' and columns[4] == "N":
                 traffic_data_list[5] += 1
+            if columns[3] == columns[4]:
+                traffic_data_list[6] += 1
                 
             # Calculate truck percentage
-            truck_percent = (traffic_data_list[1] / traffic_data_list[0]) * 100
-            traffic_data_list[6] = str(round(truck_percent)) + "%"
+            truck_percent = (traffic_data_list[2] / traffic_data_list[1]) * 100
+            traffic_data_list[7] = str(round(truck_percent)) + "%"
             
             # Calculate bikes per hour
             if columns[8] == 'Bicycle':
                 bikes_count += 1
-            traffic_data_list[7] = round(bikes_count / 24)
+            traffic_data_list[8] = round(bikes_count / 24)
             
             # High speed vehicles
             if int(columns[7]) > int(columns[6]):
-                traffic_data_list[8] += 1
+                traffic_data_list[9] += 1
             
             # Vehicles from Elm Avenue/Rabbit Road    
             if columns[0] == 'Elm Avenue/Rabbit Road':
-                traffic_data_list[9] += 1
+                traffic_data_list[10] += 1
                 
             # Vehicles from Hanley Highway/Westway
             if columns[0] == 'Hanley Highway/Westway':
-                traffic_data_list[10] += 1
+                traffic_data_list[11] += 1
                     
             # Calculate hourly data to get maximum number of vehicles per hour       
             hour = int(columns[2].split(":")[0])
@@ -130,16 +131,16 @@ def process_csv_data(file_path):
             # Scooter percentage
             if columns[8] == "Scooter":
                 scooter_count += 1
-            traffic_data_list[11] = int((scooter_count/traffic_data_list[0]) * 100)
+            traffic_data_list[12] = int((scooter_count/traffic_data_list[1]) * 100)
                 
             # Assign hourly data to relevent traffic_data_list value    
-            traffic_data_list[12] = max_vehicles_ph
-            traffic_data_list[13] = max_vehicles_frm_hour
+            traffic_data_list[13] = max_vehicles_ph
+            traffic_data_list[14] = max_vehicles_frm_hour
             
             # Calculate the number of hours of rain
             if columns[5] == 'Light Rain' or columns[5] == 'Heavy Rain':
                 if current_hour_for_rain != hour:
-                    traffic_data_list[14] += 1
+                    traffic_data_list[15] += 1
                 current_hour_for_rain = hour
             
         return traffic_data_list
@@ -152,21 +153,22 @@ def display_outcomes(outcomes):
     Displays the calculated outcomes in a clear and formatted way.
     """
     results = []
-    results.append(f"The total number of vehicles recorded for this date is {outcomes[0]}")
-    results.append(f"The total number of trucks recorded for this date is {outcomes[1]}")
-    results.append(f"The total number of electric vehicles for this date is {outcomes[2]}")
-    results.append(f"The total number of two-wheeled vehicles for this date is {outcomes[3]}")
-    results.append(f"The total number of Busses leaving Elm Avenue/Rabbit Road heading North is {outcomes[4]}")
-    results.append(f"The total number of Vehicles through both junctions not turning left or right is {outcomes[5]}")
-    results.append(f"The percentage of total vehicles recorded that are trucks for this date is {outcomes[6]}")
-    results.append(f"The average number of Bikes per hour for this date is {outcomes[7]} \n")
-    results.append(f"The total number of vehicles recorded as over the speed limit for this date is {outcomes[8]}")
-    results.append(f"The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is {outcomes[9]}")
-    results.append(f"The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes[10]}")
-    results.append(f"{outcomes[11]}% of vehicles recorded through Elm Avenue/Rabbit Road are scooters. \n")
-    results.append(f"The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes[12]}")
-    results.append(f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes[13] - 1}:00 - {outcomes[13]}:00")
-    results.append(f"The number of hours of rain for this date is {outcomes[14]}")
+    results.append(f"{'*'*40} \ndata file selected is {outcomes[0]} \n{'*'*40}")
+    results.append(f"The total number of vehicles recorded for this date is {outcomes[1]}")
+    results.append(f"The total number of trucks recorded for this date is {outcomes[2]}")
+    results.append(f"The total number of electric vehicles for this date is {outcomes[3]}")
+    results.append(f"The total number of two-wheeled vehicles for this date is {outcomes[4]}")
+    results.append(f"The total number of Busses leaving Elm Avenue/Rabbit Road heading North is {outcomes[5]}")
+    results.append(f"The total number of Vehicles through both junctions not turning left or right is {outcomes[6]}")
+    results.append(f"The percentage of total vehicles recorded that are trucks for this date is {outcomes[7]}")
+    results.append(f"The average number of Bikes per hour for this date is {outcomes[8]} \n")
+    results.append(f"The total number of vehicles recorded as over the speed limit for this date is {outcomes[9]}")
+    results.append(f"The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is {outcomes[10]}")
+    results.append(f"The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes[11]}")
+    results.append(f"{outcomes[12]}% of vehicles recorded through Elm Avenue/Rabbit Road are scooters. \n")
+    results.append(f"The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes[13]}")
+    results.append(f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes[14] - 1}:00 - {outcomes[14]}:00")
+    results.append(f"The number of hours of rain for this date is {outcomes[15]} \n")
     
     for i in results:
         print(i)
