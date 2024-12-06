@@ -98,12 +98,12 @@ def process_csv_data(file_path):
                 
             # Calculate truck percentage
             truck_percent = (traffic_data_list[2] / traffic_data_list[1]) * 100
-            traffic_data_list[7] = str(round(truck_percent)) + "%"
+            traffic_data_list[7] = str(int(truck_percent)) + "%"
             
             # Calculate bikes per hour
             if columns[8] == 'Bicycle':
                 bikes_count += 1
-            traffic_data_list[8] = round(bikes_count / 24)
+            traffic_data_list[8] = int(bikes_count / 24)
             
             # High speed vehicles
             if int(columns[7]) > int(columns[6]):
