@@ -79,6 +79,11 @@ def process_csv_data(file_path):
         max_vehicles_ph = 0
         max_vehicles_frm_hour = 0
         current_hour_for_rain = 0
+        rain_hours = 0
+        rain_minutes = 0
+
+        rain_times = list()
+        previous_weather = None
         
         # Get data from csv file and assign into the traffic_data_list
         for row in data_rows:
@@ -118,7 +123,9 @@ def process_csv_data(file_path):
                 traffic_data_list[11] += 1
                     
             # Calculate hourly data to get maximum number of vehicles per hour       
-            hour = int(columns[2].split(":")[0])
+            time_parts = columns[2].split(":")
+            hour = int(time_parts[0])
+            minutes = int(time_parts[1])
             if hour > current_hour and columns[0] == 'Hanley Highway/Westway':
                 if vehicles_ph > max_vehicles_ph:
                     max_vehicles_ph = vehicles_ph
@@ -139,10 +146,32 @@ def process_csv_data(file_path):
             
             # Calculate the number of hours of rain
             if columns[5] == 'Light Rain' or columns[5] == 'Heavy Rain':
-                if current_hour_for_rain != hour:
-                    traffic_data_list[15] += 1
-                current_hour_for_rain = hour
-            
+                rain_times.append([hour, minutes])
+
+            if columns[5] not in ('Light Rain', 'Heavy Rain') and previous_weather in ('Light Rain', 'Heavy Rain'):
+
+                # Step 1: Convert times to total minutes since midnight
+                time_in_minutes = [(time[0] * 60 + time[1]) for time in rain_times]
+
+                # Step 2: Find minimum and maximum times
+                min_time_minutes = min(time_in_minutes)
+                max_time_minutes = max(time_in_minutes)
+
+                # Step 3: Calculate the rangey
+                range_minutes = max_time_minutes - min_time_minutes
+                range_hours = range_minutes // 60
+                range_rem_minutes = range_minutes % 60
+                rain_hours += range_hours
+                rain_minutes += range_rem_minutes
+                traffic_data_list[15] = (rain_hours, rain_minutes)
+                    
+            previous_weather = columns[5]
+
+            #if columns[5] == 'Light Rain' or columns[5] == 'Heavy Rain':
+                #if current_hour_for_rain != hour:
+                    #traffic_data_list[15] += 1
+                #current_hour_for_rain = hour
+
         return traffic_data_list
     
     except FileNotFoundError:
@@ -168,7 +197,9 @@ def display_outcomes(outcomes):
     results.append(f"{outcomes[12]}% of vehicles recorded through Elm Avenue/Rabbit Road are scooters. \n")
     results.append(f"The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes[13]}")
     results.append(f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes[14] - 1}:00 - {outcomes[14]}:00")
-    results.append(f"The number of hours of rain for this date is {outcomes[15]} \n")
+
+    rain_hours, rain_minutes = outcomes[15]
+    results.append(f"The number of hours of rain for this date is {rain_hours} hours and {rain_minutes} minutes \n")
     
     for i in results:
         print(i)
