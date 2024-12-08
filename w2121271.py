@@ -78,10 +78,9 @@ def process_csv_data(file_path):
         vehicles_ph = 0
         max_vehicles_ph = 0
         max_vehicles_frm_hour = 0
-        current_hour_for_rain = 0
+
         rain_hours = 0
         rain_minutes = 0
-
         rain_times = list()
         previous_weather = None
         
@@ -161,16 +160,9 @@ def process_csv_data(file_path):
                 range_minutes = max_time_minutes - min_time_minutes
                 range_hours = range_minutes // 60
                 range_rem_minutes = range_minutes % 60
-                rain_hours += range_hours
-                rain_minutes += range_rem_minutes
-                traffic_data_list[15] = (rain_hours, rain_minutes)
+                traffic_data_list[15] = (range_hours, range_rem_minutes)
                     
             previous_weather = columns[5]
-
-            #if columns[5] == 'Light Rain' or columns[5] == 'Heavy Rain':
-                #if current_hour_for_rain != hour:
-                    #traffic_data_list[15] += 1
-                #current_hour_for_rain = hour
 
         return traffic_data_list
     
@@ -197,9 +189,11 @@ def display_outcomes(outcomes):
     results.append(f"{outcomes[12]}% of vehicles recorded through Elm Avenue/Rabbit Road are scooters. \n")
     results.append(f"The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes[13]}")
     results.append(f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes[14] - 1}:00 - {outcomes[14]}:00")
-
-    rain_hours, rain_minutes = outcomes[15]
-    results.append(f"The number of hours of rain for this date is {rain_hours} hours and {rain_minutes} minutes \n")
+    if outcomes[15] != 0:
+        rain_hours, rain_minutes = outcomes[15]
+        results.append(f"The number of hours of rain for this date is {rain_hours} hours and {rain_minutes} minutes \n")
+    else:
+        results.append(f"The number of hours of rain for this date is 0 \n")
     
     for i in results:
         print(i)
