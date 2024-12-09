@@ -1,6 +1,7 @@
 #Author: Ishara Harshana
 #Date: 24/11/2024
-#Student ID: 20244040
+#IIT Student ID: 20244040
+#UoW ID: w2121271
 
 # Task A: Input Validation
 def validate_date_input(message, error_message, max_value, min_value):
@@ -81,6 +82,7 @@ def process_csv_data(file_path):
         vehicles_ph = 0
         max_vehicles_ph = 0
         max_vehicles_frm_hour = 0
+        total_elm_avenue = 0
 
         rain_hours = 0
         rain_minutes = 0
@@ -117,7 +119,7 @@ def process_csv_data(file_path):
                 
             # Calculate truck percentage
             truck_percent = (traffic_data_list[2] / traffic_data_list[1]) * 100
-            traffic_data_list[7] = str(int(truck_percent)) + "%"
+            traffic_data_list[7] = str(round(truck_percent)) + "%"
             
             # Calculate bikes per hour
             if columns[8] == 'Bicycle':
@@ -149,10 +151,14 @@ def process_csv_data(file_path):
             elif hour == current_hour and columns[0] == 'Hanley Highway/Westway':
                 vehicles_ph += 1
                 
-            # Scooter percentage
-            if columns[8] == "Scooter":
+            # Get the total vehicles through Elm Avenue/Rabbit Road
+            if columns[0] == 'Elm Avenue/Rabbit Road':
+                total_elm_avenue += 1
+
+            # Scooter percentage through Elm Avenue/Rabbit Road
+            if columns[8] == "Scooter" and columns[0] == 'Elm Avenue/Rabbit Road':
                 scooter_count += 1
-            traffic_data_list[12] = int((scooter_count/traffic_data_list[1]) * 100)
+            traffic_data_list[12] = int((scooter_count/total_elm_avenue) * 100)
                 
             # Assign hourly data to relevent traffic_data_list value    
             traffic_data_list[13] = max_vehicles_ph
@@ -214,9 +220,9 @@ def display_outcomes(outcomes):
     results.append(f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes[14] - 1}:00 - {outcomes[14]}:00")
     if outcomes[15] != 0:
         rain_hours, rain_minutes = outcomes[15]
-        results.append(f"The number of hours of rain for this date is {rain_hours} hours and {rain_minutes} minutes \n")
+        results.append(f"The number of hours of rain for this date is {rain_hours} hours and {rain_minutes} minutes \n\n")
     else:
-        results.append(f"The number of hours of rain for this date is 0 \n")
+        results.append(f"The number of hours of rain for this date is 0 \n\n")
     
     for i in results:
         print(i)
