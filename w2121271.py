@@ -143,7 +143,10 @@ def process_csv_data(file_path):
             traffic_data_list[13] = max_vehicles_ph
             traffic_data_list[14] = max_vehicles_frm_hour
             
-            # Calculate the number of hours of rain
+            
+            # Number of hours of rain calculation
+
+            # Get all the rain hour and minutes
             if columns[5] == 'Light Rain' or columns[5] == 'Heavy Rain':
                 rain_times.append([hour, minutes])
 
@@ -156,12 +159,18 @@ def process_csv_data(file_path):
                 min_time_minutes = min(time_in_minutes)
                 max_time_minutes = max(time_in_minutes)
 
-                # Step 3: Calculate the rangey
+                # Step 3: Calculate the range
                 range_minutes = max_time_minutes - min_time_minutes
                 range_hours = range_minutes // 60
                 range_rem_minutes = range_minutes % 60
-                traffic_data_list[15] = (range_hours, range_rem_minutes)
-                    
+                rain_hours += range_hours
+                rain_minutes += range_rem_minutes
+                if rain_minutes >= 60:
+                    rain_hours += 1
+                    rain_minutes -= 60
+                traffic_data_list[15] = (rain_hours, rain_minutes)
+                rain_times.clear()
+    
             previous_weather = columns[5]
 
         return traffic_data_list
