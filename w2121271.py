@@ -220,9 +220,9 @@ def display_outcomes(outcomes):
     results.append(f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes[14] - 1}:00 - {outcomes[14]}:00")
     if outcomes[15] != 0:
         rain_hours, rain_minutes = outcomes[15]
-        results.append(f"The number of hours of rain for this date is {rain_hours} hours and {rain_minutes} minutes \n")
+        results.append(f"The number of hours of rain for this date is {rain_hours} hours and {rain_minutes} minutes \n\n")
     else:
-        results.append(f"The number of hours of rain for this date is 0 \n")
+        results.append(f"The number of hours of rain for this date is 0 \n\n")
     
     for i in results:
         print(i)
