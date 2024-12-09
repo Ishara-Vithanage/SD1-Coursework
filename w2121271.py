@@ -32,7 +32,8 @@ def validate_continue_input():
     """
     Prompts the user to decide whether to load another dataset:
     - Validates "Y" or "N" input
-    """ 
+    """
+    # After an output, programme ask whether user wants to continue or not 
     user_cont = input("Do you want to select another data file for a different date? Y/N > ")
     if user_cont == "N" or user_cont == "n":
         print("End of run ")
@@ -60,16 +61,18 @@ def process_csv_data(file_path):
     - Two-wheeled vehicles, and other requested metrics
     """
     try:
-        traffic_data_list = []
+        traffic_data_list = [] # This list use to insert all the necessary traffic data.
         
-        for i in range(0, 16): # Insert 15, 0 values to the list (for increment purposes)
+        for i in range(0, 16): # Insert 16, zero values to the list (for increment purposes)
             traffic_data_list.append(0)
-    
+
+        # First value of the list represent csv file name
         traffic_data_list[0] = file_path
-   
+        
+        # open and read the relevent csv file
         file = open(file_path, "r")
         rows = file.readlines()
-        data_rows = rows[1:]
+        data_rows = rows[1:] # Discard the heading row
         
         # below variables store essential data required for the incrementation
         bikes_count = 0
@@ -84,19 +87,31 @@ def process_csv_data(file_path):
         rain_times = list()
         previous_weather = None
         
-        # Get data from csv file and assign into the traffic_data_list
+        # Get data from csv file and assign those into the traffic_data_list
         for row in data_rows:
+            # Total vehicle count
             traffic_data_list[1] += 1 
+
+            # Seperate each csv row values
             columns = row.strip().split(',')
             
+            # Truck count
             if columns[8] == 'Truck': 
                 traffic_data_list[2] += 1
+                
+            # Electric vehicle count
             if columns[9] == 'True':
                 traffic_data_list[3] += 1
+
+            # Two wheeled vehicle count
             if columns[8] == 'Bicycle' or columns[8] == 'Motorcycle' or columns[8] == 'Scooter':
                 traffic_data_list[4] += 1
+
+            # Busses leaving Elm Avenue/Rabbit Road heading North 
             if columns[8] == 'Buss' and columns[0] == 'Elm Avenue/Rabbit Road' and columns[4] == "N":
                 traffic_data_list[5] += 1
+
+            # Vehicles through both junctions not turning left or right
             if columns[3] == columns[4]:
                 traffic_data_list[6] += 1
                 
@@ -142,26 +157,34 @@ def process_csv_data(file_path):
             # Assign hourly data to relevent traffic_data_list value    
             traffic_data_list[13] = max_vehicles_ph
             traffic_data_list[14] = max_vehicles_frm_hour
-            
-            # Calculate the number of hours of rain
+           
+            # Number of hours of rain calculation
+            # Get all the rain hours and minutes records to a list
             if columns[5] == 'Light Rain' or columns[5] == 'Heavy Rain':
                 rain_times.append([hour, minutes])
 
+            # Calculation section
             if columns[5] not in ('Light Rain', 'Heavy Rain') and previous_weather in ('Light Rain', 'Heavy Rain'):
 
-                # Step 1: Convert times to total minutes since midnight
+                # Convert times to total minutes since midnight
                 time_in_minutes = [(time[0] * 60 + time[1]) for time in rain_times]
 
-                # Step 2: Find minimum and maximum times
+                # Find minimum and maximum times
                 min_time_minutes = min(time_in_minutes)
                 max_time_minutes = max(time_in_minutes)
 
-                # Step 3: Calculate the rangey
+                # Calculate the range
                 range_minutes = max_time_minutes - min_time_minutes
                 range_hours = range_minutes // 60
                 range_rem_minutes = range_minutes % 60
-                traffic_data_list[15] = (range_hours, range_rem_minutes)
-                    
+                rain_hours += range_hours
+                rain_minutes += range_rem_minutes
+                if rain_minutes >= 60:
+                    rain_hours += 1
+                    rain_minutes -= 60
+                traffic_data_list[15] = (rain_hours, rain_minutes)
+                rain_times.clear()
+
             previous_weather = columns[5]
 
         return traffic_data_list
@@ -173,7 +196,7 @@ def display_outcomes(outcomes):
     """
     Displays the calculated outcomes in a clear and formatted way.
     """
-    results = []
+    results = [] # This list use to insert all the traffic data in a structered way
     results.append(f"{'*'*40} \ndata file selected is {outcomes[0]} \n{'*'*40}")
     results.append(f"The total number of vehicles recorded for this date is {outcomes[1]}")
     results.append(f"The total number of trucks recorded for this date is {outcomes[2]}")
