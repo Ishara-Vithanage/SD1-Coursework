@@ -131,11 +131,13 @@ LOOP
             EXIT loop
         ELSE
             CONTINUE
-
+	END IF
+    END IF
     CALL display_outcomes TO DISPLAY results
     CALL save_results_to_file TO SAVE results TO text file
 
     CALL validate_continue_input TO PROMPT for continuation
     IF continuation is False
         EXIT loop
+    END IF
 
