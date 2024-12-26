@@ -1,0 +1,138 @@
+CLASS HistogramApp
+    LOOP Initialize(traffic_data, date)
+        SET window title as "Traffic Histogram"
+        SET window size to 1200x480
+        CREATE canvas with white background
+    END LOOP
+    
+    LOOP DrawHistogram
+        SET canvas dimensions and margins
+        SET bar properties (width, spacing)
+        
+        LOOP through each hour in traffic_data
+            GET junction1 and junction2 values
+            CALCULATE bar heights using scale
+            DRAW rectangle for junction1 (green)
+            DRAW text for junction1 value
+            DRAW rectangle for junction2 (red)
+            DRAW text for junction2 value
+            DRAW hour label
+            UPDATE x position for next bars
+        END LOOP
+        
+        LOOP AddLegend
+            DRAW title text
+            DRAW legend boxes and labels for both junctions
+            DRAW x-axis label
+        END LOOP
+    END LOOP
+
+CLASS MultiCSVProcessor
+    LOOP Initialize
+        SET current_data to empty
+    END LOOP
+    
+    LOOP LoadCSVFile(file_path)
+        TRY
+            OPEN file in read mode
+            GET all rows except header
+            
+            SET initial counters (elm_avenue, westway) to 0
+            SET hour to -1
+            
+            LOOP through each row in data
+                FORMAT time to get current hour
+                
+                IF current_hour different from previous hour THEN
+                    IF not first hour THEN
+                        STORE previous hour data
+                    END IF
+                    RESET counters
+                    UPDATE hour
+                END IF
+                
+                IF junction is Elm Avenue THEN
+                    INCREMENT elm_avenue counter
+                ELSE IF junction is Westway THEN
+                    INCREMENT westway counter
+                END IF
+            END LOOP
+            
+            STORE final hour data
+            CREATE and run histogram
+            
+        CATCH EXCEPTION FileNotFound
+            PROMPT "File directory not found"
+        END TRY
+    END LOOP
+    
+    LOOP ClearPreviousData
+        SET current_data to empty
+        
+        LOOP until valid input
+            PROMPT "Continue with another file? Y/N"
+            GET user input
+            
+            IF input is N or n THEN
+                PROMPT "End of run"
+                RETURN false
+            ELSE IF input is Y or y THEN
+                RETURN true
+            ELSE
+                LOOP until valid Y/N
+                    PROMPT "Please enter Y or N"
+                    GET user input
+                    IF valid input THEN
+                        BREAK loop
+                    END IF
+                END LOOP
+            END IF
+        END LOOP
+    END LOOP
+    
+    LOOP HandleUserInteraction(message, error_message, max_value, min_value)
+        LOOP until valid input
+            TRY
+                PROMPT message
+                GET user input as integer
+                
+                IF input outside range THEN
+                    PROMPT error_message
+                    CONTINUE loop
+                END IF
+                
+                FORMAT input to two digits if needed
+                RETURN formatted input
+                
+            CATCH EXCEPTION ValueError
+                PROMPT "Integer required"
+            END TRY
+        END LOOP
+    END LOOP
+    
+    LOOP ProcessFiles
+        LOOP until user exits
+            GET day using HandleUserInteraction
+            GET month using HandleUserInteraction
+            GET year using HandleUserInteraction
+            
+            FORMAT date as ddmmyyyy
+            FORMAT filename as "traffic_data" + date + ".csv"
+            
+            CALL LoadCSVFile with filename
+            
+            IF data not loaded THEN
+                GET user choice to continue
+                IF continue THEN
+                    CONTINUE main loop
+                ELSE
+                    BREAK main loop
+                END IF
+            END IF
+            
+            GET user choice to continue
+            IF not continue THEN
+                BREAK main loop
+            END IF
+        END LOOP
+    END LOOP

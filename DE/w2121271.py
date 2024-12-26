@@ -3,9 +3,9 @@
 #IIT Student ID: 20244040
 #UoW ID: w2121271
 
-# Task D: Histogram Display
 import tkinter as tk
 
+# Task D: Histogram Display
 class HistogramApp:
     def __init__(self, traffic_data, date):
         """
@@ -78,12 +78,15 @@ class HistogramApp:
         # Add hour label
         self.canvas.create_text(110, 30, text=f"Histogram of Vehicle Frequency per Hour ({self.date})", anchor="w", font=("Arial", 14, "bold"))
         
+        # Add legend for junction 1
         self.canvas.create_rectangle(110, 50, 130, 70, fill="#9ff698")
         self.canvas.create_text(140, 60, text="Elm Avenue/Rabbit Road", anchor="w")
 
+        # Add legend for junction 2
         self.canvas.create_rectangle(110, 80, 130, 100, fill="#f39998")
         self.canvas.create_text(140, 90, text="Hanley Highway/Westway", anchor="w")
 
+        # Define x axes
         self.canvas.create_text(550, 450, text="Hours 00:00 to 24:00", anchor="w", font=("Arial", 10))
 
     def run(self):
@@ -137,7 +140,7 @@ class MultiCSVProcessor:
                 elif junction == "Hanley Highway/Westway":
                     westway += 1
 
-            # Add the last hour's data
+            # Add the previous hour's data
             if hour != -1:
                 self.current_data[hour] = [elm_avenue, westway]
 
